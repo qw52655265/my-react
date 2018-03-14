@@ -18,9 +18,13 @@ class ReactMusicPlayer extends Component {
       totalTime: 0, // 音乐总时间
       remainTime: 0, // 音乐播放剩余时间
       playedLeft: 0,
-      volumnLeft: 0
+      volumnLeft: 0,
+
+      mouseDown: false // 时间轴控制
     };
     this.showMusicList = this.showMusicList.bind(this);
+    this.setTime = this.setTime.bind(this);
+    this.getTime = this.getTime.bind(this);
 
     // 播放按钮
     this.last = this.last.bind(this); // 上一首
@@ -35,6 +39,8 @@ class ReactMusicPlayer extends Component {
     this.mouseMoveProgress = this.mouseMoveProgress.bind(this);
     this.mouseUpProgress = this.mouseUpProgress.bind(this);
     this.mouseLeaveProgress = this.mouseLeaveProgress.bind(this);
+
+    this.setTimeOnPc = this.setTimeOnPc.bind(this);
   }
 
   componentDidMount() {
@@ -45,11 +51,11 @@ class ReactMusicPlayer extends Component {
     });
     audio.addEventListener('canplay', () => {
       // 获取总时间
-      let totalTime = parseInt(this.refs.audio.duration);
+      let totalTime = parseInt(this.refs.audio.duration, 10);
       this.setState({
         totalTime: this.getTime(totalTime),
         remainTime: this.getTime(totalTime),
-        // playedLeft: this.refs.palyed.getBoundingClientRect().left,
+        playedLeft: this.refs.played.getBoundingClientRect().left
         // volumnLeft: this.refs.totalVolumn.getBoundingClientRect().left
       });
     });
@@ -61,6 +67,14 @@ class ReactMusicPlayer extends Component {
   showMusicList() {
     this.setState({
       musicListShow: !this.state.musicListShow
+    });
+  }
+
+  playThis(i) {
+    this.setState({
+      currentMusic: this.props.info[i]
+    }, () => {
+      this.play();
     });
   }
 
@@ -131,13 +145,13 @@ class ReactMusicPlayer extends Component {
       // 设置缓冲进度条
       let timeRages = audio.buffered;
       let bufferedTime = 0;
-      if (timeRages.length != 0) {
+      if (timeRages.length !== 0) {
         bufferedTime = timeRages.end(timeRages.length - 1);
       }
       let bufferedPer = bufferedTime / audio.duration;
       this.refs.buffered.style.width = bufferedPer * 100 + '%';
       // 设置剩余时间
-      let remainTime = parseInt(audio.duration - audio.currentTime);
+      let remainTime = parseInt(audio.duration - audio.currentTime, 10);
       this.setState({
         remainTime: this.getTime(remainTime)
       });
@@ -178,20 +192,66 @@ class ReactMusicPlayer extends Component {
     }
   }
 
-  touchMoveProgress() {}
-  touchStartProgress() {}
-  clickProgress() {}
-  mouseDownProgress() {}
-  mouseMoveProgress() {}
-  mouseUpProgress() {}
-  mouseLeaveProgress() {}
+  touchMoveProgress(e) {
+    if (this.refs.audio.currentTime !== 0) {
+      this.setTime(e);
+    }
+  }
+  touchStartProgress(e) {
+    if (this.refs.audio.currentTime !== 0) {
+      this.setTime(e);
+    }
+  }
+  clickProgress(e) {
+    if (!e.pageX) {
+      return;
+    }
+    this.setTimeOnPc(e);
+  }
+  mouseDownProgress() {
+    this.setState({
+      mouseDown: true
+    });
+  }
+  mouseMoveProgress(e) {
+    if (this.state.mouseDown) {
+      this.setTimeOnPc(e);
+    }
+  }
+  mouseUpProgress() {
+    this.setState({
+      mouseDown: false
+    });
+  }
+  mouseLeaveProgress() {
+    this.setState({
+      mouseDown: false
+    });
+  }
+
+  // PC端设置进度条
+  setTimeOnPc(e) {
+    if (this.refs.audio.currentTime !== 0) {
+      let audio = this.refs.audio;
+      let newWidth = (e.pageX - this.state.playedLeft) / this.refs.progress.offsetWidth;
+      this.refs.played.style.width = newWidth * 100 + '%';
+      audio.currentTime = newWidth * audio.duration;
+    }
+  }
+
+  setTime(e) {
+    let audio = this.refs.audio;
+    let newWidth = (e.touches[0].pageX - this.state.playedLeft) / this.refs.progress.offsetWidth;
+    this.refs.played.style.width = newWidth * 100 + '%';
+    audio.currentTime = newWidth * audio.duration;
+  }
 
   getTime(musicTime) {
     if(musicTime) {
       if(musicTime<60) {
           musicTime = `00:${musicTime<10?`0${musicTime}`:musicTime}`
       } else {
-        musicTime = `${parseInt(musicTime/60)<10?`0${parseInt(musicTime/60)}`:parseInt(musicTime/60)}:${musicTime%60<10?`0${musicTime%60}`:musicTime%60}`
+        musicTime = `${parseInt(musicTime / 60, 10) < 10 ? `0${parseInt(musicTime / 60, 10)}`:parseInt(musicTime / 60, 10)}:${musicTime%60<10?`0${musicTime%60}`:musicTime%60}`
       }
       return musicTime
 
@@ -262,9 +322,15 @@ class ReactMusicPlayer extends Component {
                   {
                     this.props.info.map((value, index) => {
                       return (
-                        <div className="single-music" key={value.src}>
+                        <div className="single-music" 
+                          key={value.src}
+                          style={this.state.currentMusic.src === value.src && this.state.isPlayed ? {background: '#33BEFF', color: '#FFFFFF'} : null}
+                        >
                           <div className="single-music-play">
-                            <span className="icon-play"></span>
+                            <span className={this.state.currentMusic.src === value.src && this.state.isPlayed ? "icon-pause" : "icon-play"}
+                              onClick={this.playThis.bind(this, index)}
+                            >
+                            </span>
                           </div>
                           <div className="single-music-name">{value.name}</div>
                           <div className="single-music-artist">{value.artist}</div>
