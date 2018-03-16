@@ -69,6 +69,18 @@ class App extends React.Component {
           name:"杀手",
           img:"http://wenwen.soso.com/p/20070621/20070621060503-1458706809.jpg",
           id:"66575568448"
+        }, {
+          src: 'http://music.163.com/song/media/outer/url?id=185709.mp3',
+          artist:"周杰伦",
+          name:"稻香",
+          img:"http://p1.music.126.net/uKR6EQ1dLq4i1UBhXmvXtQ==/721279627833133.jpg",
+          id:"66575568999"
+        }, {
+          src: 'http://music.163.com/song/media/outer/url?id=64453.mp3',
+          artist:"陈奕迅",
+          name:"浮夸",
+          img:"http://p1.music.126.net/7dbK-A_In2Wol92TDMYIGw==/6636652185368776.jpg",
+          id:"66575568998"
         }
       ]
     };

@@ -1,17 +1,17 @@
 # 首个React练习项目
 copy自别人的项目，地址： https://github.com/capslocktao/react-music-player
 
-<<<<<<< HEAD
 ## npm command
-=======
-## 项目启动
->>>>>>> 89525196f142619c5998bfd652880960dec11fa2
 ```
  git clone https://github.com/qw52655265/my-react.git
  cd my-react
  npm install (推荐使用cnpm)
  npm start
 ```
+
+## 界面
+ * 谷歌浏览器：http://localhost:3000/
+ * F12模式下，选择手机模式（PC端的样式没有copy过来）
 
 ## 具体功能实现
 ### 2018-03-14
