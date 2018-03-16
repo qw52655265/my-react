@@ -1,9 +1,15 @@
-import React, {Component} from 'react';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import './react-music-player.css'
+import React from 'react';
+// import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import './music-player.css'
+
+import MusicPlayerControlBar from './music-player-control-bar.js'
+import MusicPlayerTimeBar from './music-player-time-bar'
+import MusicPlayerList from './music-player-list'
+import MusicPlayerModel from './music-player-model'
 
 let rotateTimer = 0;
-class ReactMusicPlayer extends Component {
+// 音乐播放器
+class MusicPlayer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -30,6 +36,8 @@ class ReactMusicPlayer extends Component {
     this.last = this.last.bind(this); // 上一首
     this.play = this.play.bind(this); // 播放
     this.next = this.next.bind(this); // 下一首
+
+    this.playThis = this.playThis.bind(this);
 
     // 播放进度条绑定事件
     this.touchMoveProgress = this.touchMoveProgress.bind(this);
@@ -264,11 +272,12 @@ class ReactMusicPlayer extends Component {
       <div id="react-music-player">
         <div className="react-music-player-wrapper">
           <div className="react-music-player-inner">
-            <div className="left-control">
-              <span className="icon-last" onClick={this.last}></span>
-              <span className={this.state.isPaused && this.state.currentMusic.src ? "icon-pause" : "icon-play"} onClick={this.play}></span>
-              <span className="icon-next" onClick={this.next}></span>
-            </div>
+            <MusicPlayerControlBar
+              current = { this.state.isPaused && this.state.currentMusic.src }
+              last = { this.last }
+              play = { this.play }
+              next = { this.next }
+            ></MusicPlayerControlBar>
             <div className="music-box">
               <div className="picture"></div>
               <div className="music-info">
@@ -293,11 +302,10 @@ class ReactMusicPlayer extends Component {
                     <div className="progress-played" ref="played"></div>
                   </div>
                 </div>
-                <div className="time">
-                  <div className="total-time">{this.state.currentMusic.src ? this.state.totalTime : `00:00`}</div>
-                  <span>/</span>
-                  <div className="remain-time">{this.state.currentMusic.src ? this.state.remainTime : `00:00`}</div>
-                </div>
+                <MusicPlayerTimeBar
+                  totalTime = { this.state.currentMusic.src ? this.state.totalTime : `00:00` } 
+                  remainTime = { this.state.currentMusic.src ? this.state.remainTime : `00:00` }
+                ></MusicPlayerTimeBar>
               </div>
             </div>
             <div className="music-list-btn">
@@ -307,59 +315,25 @@ class ReactMusicPlayer extends Component {
             <audio src={this.state.currentMusic.src ? this.state.currentMusic.src : ''} ref="audio"></audio>
           </div>
         </div>
-        <ReactCSSTransitionGroup
-          transitionName="music-list-show"
-          transitionEnterTimeout={500}
-          transitionLeaveTimeout={300}
+
+        {/* 音乐列表 */}
+        <MusicPlayerList
+          info={this.props.info}
+          musicListShow={this.state.musicListShow}
+          currentMusic={this.state.currentMusic}
+          isPlayed={this.state.isPlayed}
+          playThis={this.playThis}
+        ></MusicPlayerList>
+
+        {/* 遮罩 */}
+        <MusicPlayerModel 
+          musicListShow={this.state.musicListShow} 
+          showMusicList={this.showMusicList}
         >
-          {
-            this.state.musicListShow ? 
-              <div className="music-list">
-                <div className="music-list-title">
-                  <span>播放列表</span>
-                </div>
-                <div className="single-music-wrapper">
-                  {
-                    this.props.info.map((value, index) => {
-                      return (
-                        <div className="single-music" 
-                          key={value.src}
-                          style={this.state.currentMusic.src === value.src && this.state.isPlayed ? {background: '#33BEFF', color: '#FFFFFF'} : null}
-                        >
-                          <div className="single-music-play">
-                            <span className={this.state.currentMusic.src === value.src && this.state.isPlayed ? "icon-pause" : "icon-play"}
-                              onClick={this.playThis.bind(this, index)}
-                            >
-                            </span>
-                          </div>
-                          <div className="single-music-name">{value.name}</div>
-                          <div className="single-music-artist">{value.artist}</div>
-                          <div className="single-music-del">
-                            <span className="icon-del"></span>
-                          </div>
-                        </div>
-                      )
-                    })
-                  }
-                </div>
-              </div>
-              : null
-          }
-        </ReactCSSTransitionGroup>
-        <ReactCSSTransitionGroup
-          transitionName="music-list-model"
-          transitionEnterTimeout={500}
-          transitionLeaveTimeout={300}
-        >
-          {
-            this.state.musicListShow ? 
-              <div className="model" onClick={this.showMusicList}></div>
-              : null
-          }
-        </ReactCSSTransitionGroup>
+        </MusicPlayerModel>
       </div>
     );
   }
 }
 
-export default ReactMusicPlayer;
+export default MusicPlayer;

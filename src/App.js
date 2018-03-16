@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import ReactMusicPlayer from './react-music-player/react-music-player'
+import React from 'react';
+import MusicPlayer from './music-player/music-player'
 import './App.css';
 
-class App extends Component {
+class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -63,7 +63,6 @@ class App extends Component {
           img:"http://img14.3lian.com/201512/02/9478d19283ce6f990741fbac92203132.jpg",
           id:"66575568449"
         },
-
         {
           src:"http://qqma.tingge123.com:83/20081117/杀手.mp3",
           artist:"林俊杰",
@@ -83,7 +82,7 @@ class App extends Component {
 
   render() {
     return (
-      <ReactMusicPlayer 
+      <MusicPlayer 
         info = {this.state.songInfo}
         onDel = {this.delSong} />
     );
